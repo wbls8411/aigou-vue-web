@@ -67,6 +67,7 @@
                     //NProgress.done();
                     let { msg, success, object } = d.data;
                     // {"msg":"TaPo((","object":{},"success":false}
+                    // { success: true, msg: "登录成功", object: null }
                     if (!success) {
                         this.$message({
                             message: msg,
@@ -74,6 +75,9 @@
                         });
                     } else {
                         // session的设置
+                        //返回的object是null,那么存在session中的就是null,然后在main.js:如果session中
+                        //没有user,会直接又走到登录路由
+                        object ={"name":"admin"};
                         sessionStorage.setItem('user', JSON.stringify(object));
                         this.$router.push({ path: '/' });
                     }
