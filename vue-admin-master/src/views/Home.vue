@@ -75,7 +75,7 @@
 	export default {
 		data() {
 			return {
-				sysName:'VUEADMIN',
+				sysName:'爱购网管理平台',
 				collapsed:false,
 				sysUserName: '',
 				sysUserAvatar: '',

@@ -7,7 +7,7 @@
 					<el-input v-model="filters.name" placeholder="姓名"></el-input>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" v-on:click="getUsers">查询</el-button>
+					<el-button type="primary" v-on:click="getUsers">查0000询</el-button>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" @click="handleAdd">新增</el-button>
