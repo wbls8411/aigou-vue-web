@@ -24,7 +24,7 @@
         logining: false,
         ruleForm2: {
           account: 'admin',
-          checkPass: '123456'
+          checkPass: 'admin'
         },
         rules2: {
           account: [
@@ -60,7 +60,7 @@
             var loginParams = { name: this.ruleForm2.account, password: this.ruleForm2.checkPass };
 
             // 发送登录的请求:使用功能axios发送请求
-            this.$http.post("/employee/login",loginParams).then(
+            this.$http.post("/employee/employee/login",loginParams).then(
                 d => {
                     console.debug(d);//{"data":{"msg":"TaPo((","object":{},"success":false}}
                     this.logining = false;

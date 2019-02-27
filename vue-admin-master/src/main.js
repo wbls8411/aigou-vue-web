@@ -20,7 +20,7 @@ Vue.use(VueRouter)
 Vue.use(Vuex);
 
 //axios的全局定义:
-axios.defaults.baseURL="http://localhost:9527/aigou/employee";
+axios.defaults.baseURL="http://localhost:9527/aigou";
 //easy-mock:做模拟服务端:不要再拼接了,这是一个全局配置,会在axios的所有请求都加这个前缀
 //axios.defaults.baseURL="https://www.easy-mock.com/mock/5c74b648e4782d132ff56ed7/employee/aigou/employee";
 
