@@ -147,14 +147,16 @@
 				this.page = val;
 				this.getBrands();
 			},
-			//获取用户列表
+			//获取品牌的列表:
             getBrands() {
+                //查询条件
 				let para = {
 					page: this.page,
 					keyword: this.filters.keyword
 				};
+				//加载
 				this.listLoading = true;
-
+				//异步请求:
 				this.$http.post("/product/brand/json",para)
                     .then((res) => {
                         console.log(this);

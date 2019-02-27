@@ -100,6 +100,7 @@
             },
             getTreeData(){
                 console.log(this);
+                // 发送一个异步请求: get请求 /product/productType/treeData
                 this.$http.get("/product/productType/treeData")
                     .then(res=>{
                             console.log(this);
@@ -115,7 +116,6 @@
         },
         mounted(){
             //对productTypes数据赋值
-            console.log(this);
            this.getTreeData();
         }
     };
