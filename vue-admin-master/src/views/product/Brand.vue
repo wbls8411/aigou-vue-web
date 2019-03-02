@@ -45,7 +45,7 @@
 			</el-pagination>
 		</el-col>
 
-		<!--编辑界面-->
+		<!--编辑/添加界面-->
 		<el-dialog title="编辑" v-model="formVisible" :close-on-click-modal="false">
 			<el-form :model="form" label-width="80px" :rules="formRules" ref="form">
 				<el-form-item label="名称" prop="name">
@@ -55,9 +55,10 @@
 					<el-input v-model="form.englishName" auto-complete="off"></el-input>
 				</el-form-item>
 				<el-form-item label="logo" prop="logo">
+					<!--upload上传的后台地址-->
 					<el-upload
 							class="upload-demo"
-							action="http://127.0.0.1:9527/services/common/upload"
+							action="http://127.0.0.1:9527/aigou/common/common/upload"
 							:on-preview="handlePreview"
 							:on-remove="handleRemove"
 							:file-list="fileList2"
@@ -106,6 +107,7 @@
 						{ required: true, message: '请输入姓名', trigger: 'blur' }
 					]
 				},
+				staticIp:"http://172.16.7.150",
 				//编辑界面数据
 				form: {
 					id: 0,
@@ -120,13 +122,35 @@
 		},
 		methods: { //方法\
             handleSuccess(response, file, fileList){
+                console.debug("55555555555555555555555555555")
+				// response   {"success":true,"msg":"上传成功","object":"/group1/M00/00/01/rBAHllx6oXWAKD5xAACIceIBrog280.jpg"}
+                console.debug(response)
+                console.debug("===============")
+                console.debug(fileList)
                 //上传成功回调
-				this.form.logo = file.response.resultObj;
+				this.form.logo = file.response.object;
 			},
+			// 上传文件的删除
             handleRemove(file, fileList) {
-                var filePath =file.response.resultObj;
-                this.$http.delete("/common/del?filePath="+filePath)
+                console.debug("delete===============")
+                console.debug(file);
+                console.debug("delete=====88888888==========")
+               console.debug(fileList);
+                var filePath1;
+                if(file.response){
+                    filePath1=file.response.object;
+				}
+               var filePath2 =file.lg;
+               var filePath="";
+               if(filePath1){
+                   filePath=filePath1;
+			   }else if(filePath2){
+                   filePath=filePath2;
+			   }
+                this.$http.delete("/common/common/delete?filePath="+filePath)
 					.then(res=>{
+                        console.debug("3333333333333")
+					    console.debug(res)
 					    if(res.data.success){
                             this.$message({
                                 message: '删除成功!',
@@ -200,8 +224,11 @@
 				//回显 要提交后台
 				this.form = Object.assign({}, row);
 				//回显缩略图
+				// url: http://172.16.7.150/group1/M00/00/01/rBAHllx6l32AHfQtAAEu5hxxfm4554.jpg
+				// fileList2:这里,在编辑的时候,把当前的logo值压入lg对象中,在删除的时候,可以获取
 				this.fileList2.push({
-					"url":this.$staticIp+row.logo
+					"url":this.staticIp+row.logo,
+					"lg":row.logo
 				})
 			},
 			//显示新增界面
@@ -224,6 +251,7 @@
 						this.$confirm('确认提交吗？', '提示', {}).then(() => {
 							this.editLoading = true;
 							let para = Object.assign({}, this.form);
+							// axios: 全局路径: http://localhost:9527/aigou/product/brand/save
 							this.$http.post("/product/brand/save",para).then((res) => {
 								this.editLoading = false;
 								this.$message({
@@ -232,6 +260,7 @@
 								});
 								this.$refs['form'].resetFields();
 								this.formVisible = false;
+								//列表刷新
 								this.getBrands();
 							});
 						});
