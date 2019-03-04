@@ -138,15 +138,17 @@
                console.debug(fileList);
                 var filePath1;
                 if(file.response){
+                    // 打开新增--->图片的上传:先上传,不关闭这个页面,这个时候点击删除,就能获取到这个file的图片地址
                     filePath1=file.response.object;
 				}
-               var filePath2 =file.lg;
+               var filePath2 =file.lg;// url: ip:端口/group/fileName   lg:logo-->/group/fileName
                var filePath="";
                if(filePath1){
                    filePath=filePath1;
 			   }else if(filePath2){
                    filePath=filePath2;
 			   }
+			   // filePath  = /group/sdlfjsdlf/
                 this.$http.delete("/common/common/delete?filePath="+filePath)
 					.then(res=>{
                         console.debug("3333333333333")
