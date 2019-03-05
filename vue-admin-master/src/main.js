@@ -33,7 +33,7 @@ Vue.config.productionTip = false
 const router = new VueRouter({
   routes
 })
-
+/*
 router.beforeEach((to, from, next) => {
   //NProgress.start();
   if (to.path == '/login') {
@@ -55,7 +55,7 @@ router.beforeEach((to, from, next) => {
   }
 
 
-})
+})*/
 
 //router.afterEach(transition => {
 //NProgress.done();

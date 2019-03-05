@@ -12,10 +12,23 @@
                 <el-form-item>
                     <el-button type="primary" @click="handleAdd">新增</el-button>
                 </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="managerViewProperties">显示属性管理</el-button>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="handleAdd">SKU属性管理</el-button>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="handleAdd">上架</el-button>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="handleAdd">下架</el-button>
+                </el-form-item>
             </el-form>
         </el-col>
 
-        <el-table :data="products" highlight-current-row v-loading="listLoading" @selection-change="selsChange"
+        <el-table :data="products" highlight-current-row v-loading="listLoading"
+                  @row-click="rowClick" @selection-change="selsChange"
                   style="width: 100%;">
             <el-table-column type="selection" width="55">
             </el-table-column>
@@ -100,6 +113,20 @@
                 <el-button type="primary" @click.native="editSubmit" :loading="editLoading">提交</el-button>
             </div>
         </el-dialog>
+
+    <!--显示属性的dialog-->
+        <el-dialog title="编辑" v-model="viewPropertiesVisible" :close-on-click-modal="false">
+            <!--viewProperties:数一个数组-->
+            <el-card class="box-card">
+                <div v-for="p in viewProperties" :key="p" class="text item">
+                    {{ p.specName }}:<el-input v-model="p.value" auto-complete="off"></el-input>
+                </div>
+            </el-card>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click.native="viewPropertiesVisible = false">取消</el-button>
+                <el-button type="primary" @click.native="viewPropertiesSubmit" :loading="editLoading">提交</el-button>
+            </div>
+        </el-dialog>
     </section>
 
 </template>
@@ -159,10 +186,68 @@
                     children: 'children', // 子级
                 },
                 // 数据列表
-                productTypes: []
+                productTypes: [],
+                viewPropertiesVisible:false,//显示属性的dialog默认是关闭
+                viewProperties:[],//显示属性对象数组  数组转换为后台的list
+                currentRow:null //选中行,默认是null
             }
         },
         methods: { //方法\
+            //显示属性的提交:
+            viewPropertiesSubmit: function () {
+                //后台发送一个请求:关键是我要得到viewProperties
+                // 把这个存到t_product_ext表的一个viewProperties,需要根据productId进行过滤:
+               let productId= this.currentRow.id;
+                let params = {"productId": productId, "viewProperties": this.viewProperties};
+                this.$http.post("/product/product/viewProperties", params).then(res => {
+                    //判断res的success:
+                    if (res.data.success) {
+                        this.$message({
+                            message: res.data.msg,
+                            type: 'success'
+                        });
+                    } else {
+                        this.$message({
+                            message: res.data.msg,
+                            type: 'error'
+                        });
+                    }
+                    this.viewPropertiesVisible=false;//关闭dialog
+                })
+
+            },
+            //点击行触发的事件:  row选中行
+            rowClick(row, column, event){
+                //  把选中的行赋予给一个变量
+                this.currentRow = row;
+            },
+            //显示属性的管理
+            managerViewProperties(){
+                //1:选中行的判断 row-click	当某一行被点击时会触发该事件	row, column, event
+               if(this.currentRow){
+                   //有值
+                   //2:点击显示属性按钮-->弹出一个dialog
+                   this.viewPropertiesVisible=true;//弹出dialog
+                   let productTypeId=this.currentRow.productTypeId;
+                   let productId=this.currentRow.id;
+                   //3:获取到当前产品类型的显示属性:发送axios
+                   // http://localhost:9527/aigou/product/product/viewProperties/3
+                   let viewPropertiesUrl="/product/product/viewProperties/"+productTypeId+"/"+productId;
+                   this.$http.get(viewPropertiesUrl).then(res=>{
+                       //直接把返回的数据,赋予给页面的有一个变量:
+                       this.viewProperties = res.data;
+                       console.debug(this.viewProperties);
+                   })
+               }else{
+                   //没有选中:给一个提示,并返回
+                   this.$message({
+                       message: '请选中需要设置的一行数据!',
+                       type: 'warning'
+                   });
+                   return;
+               }
+
+            },
             onEditorReady(editor) {
             },
             formatState: function (row, column) {
@@ -290,7 +375,7 @@
                 });
             },
             //显示编辑界面
-            handleEdit: function (index, row) {
+            uhandleEdit: function (index, row) {
                 this.formVisible = true;
                 //回显 要提交后台
                 this.form = Object.assign({}, row);
@@ -302,6 +387,7 @@
                     "lg": row.logo
                 })
             },
+
             //显示新增界面
             handleAdd: function () {
                 this.formVisible = true;
