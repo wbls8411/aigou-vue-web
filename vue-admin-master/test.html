@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<script>
+
+    //颜色:
+    var a1 = ["w", "r"];
+    //尺寸
+    var a2 = [6, 9];
+    // 得到: w 6    w 9   r 6  r 9
+    a1.forEach(c1 => {
+        console.debug(c1)
+        a2.forEach(c2 => {
+            console.debug(c1 + "_" + c2);
+        })
+    })
+
+    console.debug("==================")
+    // reduce:es6
+    // pre:每次遍历后结果
+    // cur:当前的对象
+    var a3 = [a1, a2,[1,2],[8,9],[88,99]];
+   var result=  a3.reduce((pre, cur) => {
+       let r =[];
+       pre.forEach(p1=>{
+           cur.forEach(c1=>{
+              let pc =  p1+"_"+c1;
+              r.push(pc);
+           })
+       })
+       return r;
+    },[{}]);
+
+   console.debug(result)
+
+    //项目结构数据构造:
+    var skuProperties=[
+        {"id":12,"sepcName":"颜色","skuValues":["yellow","green"]}
+        ,{"id":62,"sepcName":"尺寸","skuValues":["16","36"]},
+        {"id":62,"sepcName":"尺3寸","skuValues":["136","336"]}
+        ];
+
+    var pp = skuProperties.reduce((pre,cur)=>{
+        let r =[];//返回的数组
+        pre.forEach(p1=>{
+            cur.skuValues.forEach(c1=>{
+                // c1: 就是单个的值: yellow,或者green
+                var obj ={};//
+                Object.assign(obj,p1);
+                // obj.name="zs";
+                // obj ={"颜色":"yellow"}
+                obj[cur.sepcName]=c1;
+                r.push(obj);
+            })
+        })
+        return r;
+    },[{}]);
+
+    console.debug(pp)
+
+</script>
+
+</body>
+</html>

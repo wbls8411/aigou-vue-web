@@ -154,24 +154,19 @@
                 </div>
             </el-card>
             <!--table-->
-            <!--动态表格-->
-            <el-table :data="skuDatas">
-                <!--cols一堆列,col哪一列-->
-                <template v-for="(col ,index) in cols">
-                    <el-table-column :prop="col.prop" sortable :label="col.label" v-if="['price','availableStock'].includes(col.prop)">
-                       <!--scope:作用域的问题-->
-                        <template scope="scope">
-                            <el-input auto-complete="off" v-model="skuDatas[scope.$index].price"  style="width: 400px" v-if="'price'===col.prop"/>
-                            <el-input auto-complete="off" v-model="skuDatas[scope.$index].availableStock" style="width: 400px" v-if="'availableStock'===col.prop"/>
-                        </template>
+            <el-table
+                    :data="skuDatas"
+                    style="width: 100%" >
+                <div v-for="(col,index) in cols">
+                    <!--有多少个:cols-->
+                    <el-table-column
+                            :prop="col.prop"
+                            :label="col.label"
+                            width="180">
                     </el-table-column>
-                    <!--只做显示-->
-                    <el-table-column :prop="col.prop" sortable :label="col.label" v-if="!['price','availableStock'].includes(col.prop)">
-                    </el-table-column>
-                </template>
+                </div>
+
             </el-table>
-
-
             <div slot="footer" class="dialog-footer">
                 <el-button @click.native="skuPropertiesVisible = false">取消</el-button>
                 <el-button type="primary" @click.native="skuPropertiesSubmit" :loading="editLoading">提交</el-button>
@@ -246,48 +241,60 @@
                 currentRow: null //选中行,默认是null
             }
         },
-        watch:{
-            skuProperties:{
+        watch: {
+            skuProperties: {
                 handler(curVal,oldVal){
-                        // 过滤掉用户没有填写数据的规格参数
-                        const arr = this.skuProperties.filter(s => s.skuValues.length > 0);
-                        // 通过reduce进行累加笛卡尔积
-                        var skus =  arr.reduce((last, spec) => {
-                            const result = [];
-                            last.forEach(o => {
-                                spec.skuValues.forEach(option => {
-                                    // option //一个一一个值 黄皮肤
-                                    const obj = {};
-                                    Object.assign(obj, o);
-                                    obj[spec.specName] = option;
-                                    result.push(obj);
-                                })
+                    console.debug("222222222222222222222222")
+                    var pp = this.skuProperties.reduce((pre,cur)=>{
+                        const r =[];//返回的数组
+                        pre.forEach(p1=>{
+                            cur.skuValues.forEach(c1=>{
+                                // c1: 就是单个的值: yellow,或者green
+                                const obj ={};//
+                                Object.assign(obj,p1);
+                                // obj.name="zs";
+                                // obj ={"颜色":"yellow"}
+                                // specName
+                                obj[cur.specName]=c1;
+                                r.push(obj);
                             })
-                            return result
-                        }, [{}]);
-                        //添加不存在的列
-                        skus.forEach(function (item) {
-                            item['price'] = '';
-                            item['availableStock'] = '';
                         })
-                        this.skuDatas = skus;
+                        return r;
+                    },[{}]);
 
-                    let headers = [];
-                    //现在没有一定有字段 库存 价格  颜色
-                    //skus [{"身高":170,"三维":"xxx",价格:18,库存:18,是否可用:0},{"身高":170,"三维":"xxx",价格:18,库存:18,是否可用:0}]
-                    //获取这个对象的所有的key
-                    Object.keys(this.skuDatas[0]).forEach(sku=>{
-                        let value = sku;
-                        if(sku=='price'){
-                            value = '价格'
-                        }
-                        if(sku=='availableStock'){
-                            value = '库存'
-                        }
-                        let col =  {"label":value,"prop":sku};
-                        headers.push(col);
+                    this.skuDatas =pp;
+                    // skuDatas = [{"颜色":"yellow","尺寸":6},{"颜色":"yellow","尺寸":9}]
+                    // skuDatas = [{"颜色":"yellow","尺寸":6,"price":""},{"颜色":"yellow","尺寸":9,"price":""}]
+                   //增加额外的sku的属性:
+                    this.skuDatas.forEach(item=>{
+                        // {"颜色":"yellow","尺寸":6}
+                        item['price']="";
+                        item['availableStock']="";
                     });
-                    this.cols = headers;
+
+
+                    //table的头的处理:
+                    let header =[];
+                    var skuData1 = this.skuDatas[0];
+
+                    //  ["颜色", "尺寸", "price", "availableStock"]
+                    var hh = Object.keys(skuData1);
+                    hh.forEach(
+                        h=>{
+                            //prop="date"
+                            //label="日期"
+                            // "颜色"
+                            let value = h;
+                            if(h=='price'){
+                                value="价格"
+                            }else if(h=='availableStock'){
+                                value="可用库存";
+                            }
+                            let col =  {"label":value,"prop":h};
+                            this.cols.push(col);
+                        }
+                    );
+
                 },
                 deep:true
             }
@@ -318,24 +325,7 @@
                 }
             },
             skuPropertiesSubmit: function () {
-                //sku属性保存: 操作的
-                let productId = this.currentRow.id;
-                let params = {"productId": productId, "skuProperties": this.skuProperties,"skuDatas":this.skuDatas};
-                this.$http.post("/product/product/skuProperties", params).then(res => {
-                    //判断res的success:
-                    if (res.data.success) {
-                        this.$message({
-                            message: res.data.msg,
-                            type: 'success'
-                        });
-                    } else {
-                        this.$message({
-                            message: res.data.msg,
-                            type: 'error'
-                        });
-                    }
-                    this.skuPropertiesVisible = false;//关闭dialog
-                })
+                //sku属性保存
             },
             //显示属性的提交:
             viewPropertiesSubmit: function () {
