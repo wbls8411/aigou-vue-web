@@ -19,10 +19,10 @@
                     <el-button type="primary" @click="managerSkuProperties">SKU属性管理</el-button>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="handleAdd">上架</el-button>
+                    <el-button type="primary" @click="onSale">上架</el-button>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="handleAdd">下架</el-button>
+                    <el-button type="primary" @click="offSale">下架</el-button>
                 </el-form-item>
             </el-form>
         </el-col>
@@ -293,6 +293,49 @@
             }
         },
         methods: { //方法\
+            onSale:function(){
+                this.saleOption(1);
+            },
+            offSale:function(){
+                //下架
+                this.saleOption(2);
+
+            },
+            saleOption:function (optType) {
+                if (this.currentRow) {
+                    // [{"id":1,"name":"xx"},{"id":2,"name":"xx"}]
+                    // 1,2
+                    var ids = this.sels.map(item => item.id).toString();
+                    //请求发送:
+                    // optType:操作的类型:  1 发送的上架操作; 2:发送的是下架操作
+                    // /product/product/productSale/ids/optType
+                    let params = {"ids":ids,"optType":optType}
+                    let onSaleUrl = "/product/product/productSale";
+                    this.$http.post(onSaleUrl,params).then(res => {
+                        //判断res的success:
+                        if (res.data.success) {
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                        } else {
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'error'
+                            });
+                        }
+
+                    })
+
+                } else {
+                    //没有选中:给一个提示,并返回
+                    this.$message({
+                        message: '请选中需要上架的数据!',
+                        type: 'warning'
+                    });
+                    return;
+                }
+            },
             managerSkuProperties: function () {
                 //1:选中行的判断 row-click	当某一行被点击时会触发该事件	row, column, event
                 if (this.currentRow) {
